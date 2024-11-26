@@ -11,3 +11,9 @@
 dotnet ef migrations add InitialCreate
 
 dotnet ef database update
+
+
+//FlunetValidation
+dotnet add package FluentValidation.AspNetCore
+//DI
+dotnet add package FluentValidation.DependencyInjectionExtensions
