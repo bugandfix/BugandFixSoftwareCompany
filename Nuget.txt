@@ -17,3 +17,6 @@ dotnet ef database update
 dotnet add package FluentValidation.AspNetCore
 //DI
 dotnet add package FluentValidation.DependencyInjectionExtensions
+
+Token
+//dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
