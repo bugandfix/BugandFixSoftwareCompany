@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -21,7 +22,10 @@ namespace BugandFixSoftwareCompany.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Specialization = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Experience = table.Column<int>(type: "int", nullable: false)
+                    Experience = table.Column<int>(type: "int", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LinkedInProfile = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -30,12 +34,12 @@ namespace BugandFixSoftwareCompany.Migrations
 
             migrationBuilder.InsertData(
                 table: "SoftwareDevelopers",
-                columns: new[] { "Id", "Experience", "Name", "Specialization", "Title" },
+                columns: new[] { "Id", "BirthDate", "Email", "Experience", "LinkedInProfile", "Name", "Specialization", "Title" },
                 values: new object[,]
                 {
-                    { 1, 10, "Ali", "Backend", "Unknown" },
-                    { 2, 3, "Reza", "Frontend", "Unknown" },
-                    { 3, 12, "Hamid", "DevOps", "Unknown" }
+                    { 1, null, null, 10, null, "Ali", "Backend", "Unknown" },
+                    { 2, null, null, 3, null, "Reza", "Frontend", "Unknown" },
+                    { 3, null, null, 12, null, "Hamid", "DevOps", "Unknown" }
                 });
         }
 

@@ -2,7 +2,10 @@
 using BugandFixSoftwareCompany.Abstractions;
 using BugandFixSoftwareCompany.Data;
 using BugandFixSoftwareCompany.Entity;
+using BugandFixSoftwareCompany.Extensions;
 using BugandFixSoftwareCompany.Implementations;
+using BugandFixSoftwareCompany.Response;
+using BugandFixSoftwareCompany.Result;
 using BugandFixSoftwareCompany.Validations;
 using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -33,19 +36,38 @@ app.MapGet("/developers", async (ISoftwareDeveloperService service, Cancellation
 {
     var developers = await service.GetAllAsync(cancellationToken);
     return TypedResults.Ok(developers);
-});
+})
+.WithName("ListofSoftwareDevelopers")
+.Produces<List<SoftwareDeveloperResponse>>(StatusCodes.Status200OK);
+
 
 app.MapGet("/developers/{id:int}", async (int id, ISoftwareDeveloperService service, CancellationToken cancellationToken) =>
     await Task.FromResult<Results<Ok<SoftwareDeveloper>, NotFound<string>>>(await service.GetByIdAsync(id, cancellationToken) is SoftwareDeveloper developer
         ? TypedResults.Ok(developer)
         : TypedResults.NotFound($"Developer with ID {id} not found."))
-);
+)
+.WithName("GetaSoftwareDeveloperById")
+.Produces<SoftwareDeveloperResponse>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status404NotFound);
+
+//CustomResult
+app.MapGet("/Getbycustomresult/{id:int}", async (int id, ApplicationDbContext context) =>
+{
+    var developer = await context.SoftwareDevelopers.FindAsync(id);
+
+    // Use the custom result extension method
+    return developer.ToResult();
+})
+.WithName("Getbycustomresult")
+.Produces<SoftwareDeveloperResult>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status404NotFound);
 
 
 
-app.MapPost("/developers", async (SoftwareDeveloper developer, 
-    ISoftwareDeveloperService service, 
-    CancellationToken cancellationToken , 
+
+app.MapPost("/developers", async (SoftwareDeveloper developer,
+    ISoftwareDeveloperService service,
+    CancellationToken cancellationToken,
     IValidator<SoftwareDeveloper> validator) =>
 {
     if (developer == null)
@@ -69,7 +91,10 @@ app.MapPost("/developers", async (SoftwareDeveloper developer,
     // If validation passes, proceed with adding the developer
     var addedDeveloper = await service.AddAsync(developer, cancellationToken);
     return Results.Created($"/developers/{addedDeveloper.Id}", addedDeveloper);
-});
+})
+.WithName("AddaSoftwareDeveloper")
+.Produces<SoftwareDeveloperResponse>(StatusCodes.Status201Created)
+.Produces(StatusCodes.Status400BadRequest);
 
 
 app.MapPut("/developers/{id:int}", async (
@@ -105,7 +130,25 @@ app.MapPut("/developers/{id:int}", async (
     return updatedDeveloper == null
         ? TypedResults.NotFound($"Developer with ID {id} not found.")
         : TypedResults.Ok(updatedDeveloper);
-});
+})
+.WithName("UpdateaSoftwareDeveloper")
+.Produces<SoftwareDeveloperResponse>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status404NotFound)
+.Produces(StatusCodes.Status400BadRequest);
+
+
+
+app.MapDelete("/developers/{id:int}", async (int id, ISoftwareDeveloperService service, CancellationToken cancellationToken) =>
+{
+    var success = await service.DeleteAsync(id, cancellationToken);
+    return success
+        ? TypedResults.Ok(true)
+        : TypedResults.Ok(false);
+})
+.WithName("DeleteaSoftwareDeveloper")
+.Produces<bool>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status404NotFound);
+
 
 #region WithOutValidation
 
@@ -129,14 +172,6 @@ app.MapPut("/developers/{id:int}", async (
 //});
 
 #endregion
-
-app.MapDelete("/developers/{id:int}", async (int id, ISoftwareDeveloperService service, CancellationToken cancellationToken) =>
-{
-    var success = await service.DeleteAsync(id, cancellationToken);
-    return success
-        ? TypedResults.Ok(true)
-        : TypedResults.Ok(false);
-});
 #endregion
 
 
