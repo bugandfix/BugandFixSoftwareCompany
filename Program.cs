@@ -32,6 +32,66 @@ var app = builder.Build();
 
 
 #region EndPoints
+
+// File upload endpoint
+app.MapPost("/upload", async (HttpContext context) =>
+{
+    var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "UploadedFiles");
+    if (!Directory.Exists(uploadPath))
+    {
+        Directory.CreateDirectory(uploadPath);
+    }
+    //
+    if (!context.Request.HasFormContentType)
+    {
+        return Results.BadRequest("The request must be multipart/form-data.");
+    }
+
+    var form = await context.Request.ReadFormAsync();
+    var file = form.Files.FirstOrDefault();
+
+    if (file is null || file.Length == 0)
+    {
+        return Results.BadRequest("No file was uploaded.");
+    }
+
+    var filePath = Path.Combine(uploadPath, file.FileName);
+
+    using (var stream = new FileStream(filePath, FileMode.Create))
+    {
+        await file.CopyToAsync(stream);
+    }
+
+    return Results.Ok(new { Message = "File uploaded successfully.", FileName = file.FileName });
+});
+
+// File download endpoint
+app.MapGet("/download/{fileName}", async (string fileName, HttpContext context) =>
+{
+    var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "UploadedFiles");
+    if (!Directory.Exists(uploadPath))
+    {
+        Directory.CreateDirectory(uploadPath);
+    }
+    //
+    var filePath = Path.Combine(uploadPath, fileName);
+
+    if (!System.IO.File.Exists(filePath))
+    {
+        return Results.NotFound(new { Message = "File not found." });
+    }
+
+    var contentType = "application/octet-stream"; // Default content type
+
+    // Set the response headers for content type and file download
+    context.Response.ContentType = contentType;
+    context.Response.Headers.Append("Content-Disposition", $"attachment; filename=\"{fileName}\"");
+
+    await context.Response.SendFileAsync(filePath);
+    return Results.Ok();
+});
+
+
 app.MapGet("/developers", async (ISoftwareDeveloperService service, CancellationToken cancellationToken) =>
 {
     var developers = await service.GetAllAsync(cancellationToken);
