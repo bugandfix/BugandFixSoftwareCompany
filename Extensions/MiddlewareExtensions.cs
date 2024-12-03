@@ -8,6 +8,9 @@ public static class MiddlewareExtensions
         app.UseSwagger();
         app.UseSwaggerUI();
 
+        //Response Caching
+        app.UseResponseCaching();
+
         // Use the global CORS middleware
         app.UseCors("AllowSpecificOrigins");
 

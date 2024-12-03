@@ -17,6 +17,13 @@ public static class GeneralServiceExtensions
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
+        // MemoryCaching
+        services.AddMemoryCache();
+
+        //Response Caching
+        services.AddResponseCaching();
+
+
         //CORS
         services.AddCors(options =>
         {

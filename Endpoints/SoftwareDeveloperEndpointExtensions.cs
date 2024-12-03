@@ -6,6 +6,9 @@ using BugandFixSoftwareCompany.Response;
 using BugandFixSoftwareCompany.Result;
 using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using System.Threading;
 
 namespace BugandFixSoftwareCompany.Endpoints;
 
@@ -69,6 +72,44 @@ public static class SoftwareDeveloperEndpointExtensions
             await context.Response.SendFileAsync(filePath);
             return Results.Ok();
         });
+
+
+
+        app.MapGet("/developersWithCache", async (IMemoryCache cache, 
+            ISoftwareDeveloperService service, 
+            CancellationToken cancellationToken) =>
+        {
+            const string cacheKey = "developers_list";
+
+            // Attempt to retrieve from cache
+            if (!cache.TryGetValue(cacheKey, out List<SoftwareDeveloperResponse> developers))
+            {
+                // Fetch data from service if not in cache
+                developers = (List<SoftwareDeveloperResponse>) await service.GetAllAsync(cancellationToken);
+
+                // Add data to cache with a specified expiration time
+                cache.Set(cacheKey, developers, TimeSpan.FromMinutes(5)); // Cache for 5 minutes
+            }
+
+            return TypedResults.Ok(developers);
+        })
+        .WithName("ListofSoftwareDevelopersWithCache")
+        .Produces<List<SoftwareDeveloperResponse>>(StatusCodes.Status200OK);
+
+
+        app.MapGet("/developersWithResponseCaching", async (ISoftwareDeveloperService service, CancellationToken cancellationToken) =>
+        {
+            var developers = await service.GetAllAsync(cancellationToken);
+            return TypedResults.Ok(developers);            
+        })
+        .WithName("ListofSoftwareDevelopers")
+        .Produces<List<SoftwareDeveloperResponse>>(StatusCodes.Status200OK)
+       .WithMetadata(new ResponseCacheAttribute
+        {
+                 Duration = 60, // Cache for 60 seconds
+                 Location = ResponseCacheLocation.Client
+        });
+
 
         app.MapGet("/developers", async (ISoftwareDeveloperService service, CancellationToken cancellationToken) =>
         {
