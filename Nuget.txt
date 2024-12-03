@@ -20,3 +20,6 @@ dotnet add package FluentValidation.DependencyInjectionExtensions
 
 Token
 //dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+
+//RateLimiting
+dotnet add package AspNetCoreRateLimit

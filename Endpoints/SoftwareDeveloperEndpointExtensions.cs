@@ -1,4 +1,5 @@
-﻿using BugandFixSoftwareCompany.Abstractions;
+﻿using Azure.Core;
+using BugandFixSoftwareCompany.Abstractions;
 using BugandFixSoftwareCompany.Data;
 using BugandFixSoftwareCompany.Entity;
 using BugandFixSoftwareCompany.Extensions;
@@ -16,6 +17,8 @@ public static class SoftwareDeveloperEndpointExtensions
 {
     public static WebApplication MapSoftwareDeveloperEndpoints(this WebApplication app)
     {
+        //429 Too Many Requests
+        app.MapGet("/rate", () => "Hello, World!");
 
         //Error endpoint
         app.MapGet("/error", () => {

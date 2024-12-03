@@ -1,4 +1,5 @@
-﻿using BugandFixSoftwareCompany.Abstractions;
+﻿using AspNetCoreRateLimit;
+using BugandFixSoftwareCompany.Abstractions;
 using BugandFixSoftwareCompany.Data;
 using BugandFixSoftwareCompany.Implementations;
 using BugandFixSoftwareCompany.Validations;
@@ -22,6 +23,26 @@ public static class GeneralServiceExtensions
 
         //Response Caching
         services.AddResponseCaching();
+
+        //Rate Limiting
+        services.Configure<IpRateLimitOptions>(options =>
+        {
+            options.GeneralRules = new List<RateLimitRule>
+            {
+                new RateLimitRule
+                {
+                    Endpoint = "*",
+                    Limit = 2,
+                    Period = "1m"
+                }
+            };
+        });
+
+        //Rate Limiting
+        services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+        //Rate Limiting
+        services.AddInMemoryRateLimiting();
 
 
         //CORS

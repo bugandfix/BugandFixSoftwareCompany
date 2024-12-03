@@ -1,4 +1,6 @@
-﻿namespace BugandFixSoftwareCompany.Extensions;
+﻿using AspNetCoreRateLimit;
+
+namespace BugandFixSoftwareCompany.Extensions;
 
 public static class MiddlewareExtensions
 {
@@ -16,6 +18,9 @@ public static class MiddlewareExtensions
 
         //Error Handling
         app.UseMiddleware<ErrorHandlingMiddleware>();
+
+        //Rate Limiting
+        app.UseIpRateLimiting();
 
         // Other middleware configurations can go here (e.g., Authentication, CORS)
         return app;
