@@ -16,16 +16,6 @@ public static class SoftwareDeveloperEndpointExtensions
 {
     public static WebApplication MapSoftwareDeveloperEndpoints(this WebApplication app)
     {
-        app.MapGet("/error", () => {
-            try
-            {
-
-            }
-            catch 
-            {
-
-            }
-        });
 
         //Error endpoint
         app.MapGet("/error", () => {
