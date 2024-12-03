@@ -14,6 +14,8 @@ public static class MiddlewareExtensions
         // Use the global CORS middleware
         app.UseCors("AllowSpecificOrigins");
 
+        app.UseMiddleware<ErrorHandlingMiddleware>();
+
         // Other middleware configurations can go here (e.g., Authentication, CORS)
         return app;
     }

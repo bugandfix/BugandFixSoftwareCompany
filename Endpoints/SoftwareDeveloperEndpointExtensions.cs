@@ -16,6 +16,22 @@ public static class SoftwareDeveloperEndpointExtensions
 {
     public static WebApplication MapSoftwareDeveloperEndpoints(this WebApplication app)
     {
+        app.MapGet("/error", () => {
+            try
+            {
+
+            }
+            catch 
+            {
+
+            }
+        });
+
+        //Error endpoint
+        app.MapGet("/error", () => {
+            throw new InvalidOperationException("This is a test exception");
+        });
+
         // File upload endpoint
         app.MapPost("/upload", async (HttpContext context) =>
         {
@@ -102,7 +118,7 @@ public static class SoftwareDeveloperEndpointExtensions
             var developers = await service.GetAllAsync(cancellationToken);
             return TypedResults.Ok(developers);            
         })
-        .WithName("ListofSoftwareDevelopers")
+        .WithName("ListofSoftwareDevelopersWithResponseCaching")
         .Produces<List<SoftwareDeveloperResponse>>(StatusCodes.Status200OK)
        .WithMetadata(new ResponseCacheAttribute
         {
