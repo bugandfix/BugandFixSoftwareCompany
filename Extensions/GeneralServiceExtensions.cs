@@ -2,9 +2,8 @@
 using BugandFixSoftwareCompany.Abstractions;
 using BugandFixSoftwareCompany.Data;
 using BugandFixSoftwareCompany.Implementations;
-using BugandFixSoftwareCompany.Validations;
-using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace BugandFixSoftwareCompany.Extensions;
 
@@ -17,6 +16,12 @@ public static class GeneralServiceExtensions
         // Swagger
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
+
+
+        services.AddKeyedScoped<IService, ServiceA>("KeyA");
+        services.AddKeyedScoped<IService, ServiceB>("KeyB");
+
+        services.AddSingleton<IService, DefaultService>();
 
         // MemoryCaching
         services.AddMemoryCache();
@@ -32,7 +37,7 @@ public static class GeneralServiceExtensions
                 new RateLimitRule
                 {
                     Endpoint = "*",
-                    Limit = 2,
+                    Limit = 100,
                     Period = "1m"
                 }
             };

@@ -8,8 +8,10 @@ using BugandFixSoftwareCompany.Result;
 using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
-using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
+
 
 namespace BugandFixSoftwareCompany.Endpoints;
 
@@ -17,6 +19,27 @@ public static class SoftwareDeveloperEndpointExtensions
 {
     public static WebApplication MapSoftwareDeveloperEndpoints(this WebApplication app)
     {
+
+        app.MapGet("/keyedservice", ([FromKeyedServices("KeyA")] IService serviceProvider) =>
+        {
+            return serviceProvider.DoWork();
+        });
+
+        app.MapGet("/keyedservice/{key}", (string key, [FromServices] IServiceProvider serviceProvider) =>
+        {
+            var service = serviceProvider.GetRequiredKeyedService<IService>(key);
+            return Results.Ok(service.DoWork());
+        });
+
+
+        app.MapGet("/DefaultKeyedService", ([FromServices] IServiceProvider serviceProvider) =>
+        {
+            var service = serviceProvider.GetRequiredService<IService>();
+            return service.DoWork();
+        });        
+
+     
+
         //429 Too Many Requests
         app.MapGet("/rate", () => "Hello, World!");
 
